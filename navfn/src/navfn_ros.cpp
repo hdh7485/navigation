@@ -66,6 +66,7 @@ namespace navfn {
     if(!initialized_){
       costmap_ = costmap;
       global_frame_ = global_frame;
+      //global_frame_ = "odom";
       planner_ = boost::shared_ptr<NavFn>(new NavFn(costmap_->getSizeInCellsX(), costmap_->getSizeInCellsY()));
 
       ros::NodeHandle private_nh("~/" + name);

@@ -1,0 +1,70 @@
+#global_frame: /map
+#robot_base_frame: base_link
+global_frame: /map
+robot_base_frame: /base_link
+update_frequency: 10.0
+publish_frequency: 10.0
+
+#set if you want the voxel map published
+#publish_voxel_map: true
+
+#set to true if you want to initialize the costmap from a static map
+static_map: false
+
+#begin - COMMENT these lines if you set static_map to true
+alwalys_send_full_costmap: true
+rolling_window: true
+width: 10.0
+height: 10.0
+resolution: 0.025
+#end - COMMENT these lines if you set static_map to true
+
+#START VOXEL STUFF
+#map_type: costmap
+#map_type: voxel
+#origin_z: 0.0
+#z_resolution: 0.1
+#z_voxels: 10
+#unknown_threshold: 1
+#mark_threshold: 0
+#END VOXEL STUFF
+
+transform_tolerance: 0.3
+
+obstacle_range: 10.0
+raytrace_range: 13.0
+max_obstacle_height: 3.0
+
+footprint: [[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], [0.325, -0.325]]
+#robot_radius: 0.46
+footprint_padding: 0.01
+inflation_radius: 0.20
+cost_scaling_factor: 10.0
+lethal_cost_threshold: 100
+
+plugins:
+  - {name: grass_layer, type: "costmap_2d::ObstacleLayer"}
+  - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+  - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
+
+grass_layer: 
+  track_unknown_space: false
+  footprint_clearing_enabled: false
+  observation_sources: otsu_negative_cloud
+  otsu_negative_cloud: {sensor_frame: /horizontal_laser_link, data_type: PointCloud2, topic: /otsu_negative_cloud, expected_update_rate: 0.5, observation_persistence: 0.0, marking: true, clearing: true, min_obstacle_height: -1.1, max_obstacle_height: 1.0, obstacle_range: 10.0, raytrace_range: 13.0}
+
+obstacle_layer:
+#  origin_z: 0.0
+#  z_resolution: 0.5
+#  z_voxels: 5
+#  unknown_threshold: 1
+#  mark_threshold: 0
+#  #origin_z: -0.3
+  track_unknown_space: false
+  footprint_clearing_enabled: false
+  observation_sources: velodyne_points 
+  velodyne_points: {sensor_frame: /horizontal_laser_link, data_type: PointCloud2, topic: /input, expected_update_rate: 0.5, observation_persistence: 0.0, marking: true, clearing: true, min_obstacle_height: 0.01, obstacle_range: 10.0, raytrace_range: 13.0, max_obstacle_height: 2.5}
+
+inflation_layer: 
+  inflation_radius: 0.2
+  cost_scaling_factor: 1.0
