@@ -68,6 +68,7 @@ namespace move_base {
     private_nh.param("base_local_planner", local_planner, std::string("base_local_planner/TrajectoryPlannerROS"));
     private_nh.param("global_costmap/robot_base_frame", robot_base_frame_, std::string("base_link"));
     private_nh.param("global_costmap/global_frame", global_frame_, std::string("/map"));
+    private_nh.param("global__costmap/goal_frame", goal_frame_, std::string("/map"));
     private_nh.param("planner_frequency", planner_frequency_, 0.0);
     private_nh.param("controller_frequency", controller_frequency_, 20.0);
     private_nh.param("planner_patience", planner_patience_, 5.0);
@@ -527,6 +528,7 @@ namespace move_base {
 
   geometry_msgs::PoseStamped MoveBase::goalToGlobalFrame(const geometry_msgs::PoseStamped& goal_pose_msg){
     std::string global_frame = planner_costmap_ros_->getGlobalFrameID();
+    std::string map_frame = planner_costmap_ros_->getGlobalFrameID();
     tf::Stamped<tf::Pose> goal_pose, global_pose;
     poseStampedMsgToTF(goal_pose_msg, goal_pose);
 
@@ -535,7 +537,8 @@ namespace move_base {
     goal_pose.stamp_ = ros::Time();
 
     try{
-      tf_.transformPose(global_frame, goal_pose, global_pose);
+      tf_.transformPose(goal_frame_, goal_pose, global_pose);
+      //tf_.transformPose(global_frame, goal_pose, global_pose);
     }
     catch(tf::TransformException& ex){
       ROS_WARN("Failed to transform the goal pose from %s into the %s frame: %s",
@@ -688,6 +691,7 @@ namespace move_base {
             return;
           }
 
+          //goal = goalToGlobalFrame(new_goal.target_pose);
           goal = goalToGlobalFrame(new_goal.target_pose);
 
           //we'll make sure that we reset our state for the next execution cycle
